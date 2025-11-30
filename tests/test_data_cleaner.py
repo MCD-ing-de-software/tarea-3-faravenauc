@@ -83,6 +83,14 @@ class TestDataCleaner(unittest.TestCase):
         - Verificar que el DataFrame resultante tiene menos filas que el original (usar self.assertLess con len() - comparación simple de enteros, unittest es suficiente)
         """
 
+        df = make_sample_df()
+        cleaner = DataCleaner()
+        result = cleaner.drop_invalid_rows(df, ["name", "age"])
+        self.assertEqual(result["name"].isna().sum(), 0)
+        self.assertEqual(result["age"].isna().sum(), 0) 
+        self.assertLess(len(result), len(df))   
+
+
     def test_drop_invalid_rows_raises_keyerror_for_unknown_column(self):
         """Test que verifica que el método drop_invalid_rows lanza un KeyError cuando
         se llama con una columna que no existe en el DataFrame.
@@ -92,6 +100,11 @@ class TestDataCleaner(unittest.TestCase):
         - Llamar a drop_invalid_rows con una columna que no existe (ej: "does_not_exist")
         - Verificar que se lanza un KeyError (usar self.assertRaises)
         """
+        df= make_sample_df()
+        cleaner = DataCleaner()
+        with self.assertRaises(KeyError):
+            cleaner.drop_invalid_rows(df, ["does_not_exist"])
+        
 
     def test_trim_strings_strips_whitespace_without_changing_other_columns(self):
         """Test que verifica que el método trim_strings elimina correctamente los espacios
@@ -123,7 +136,7 @@ class TestDataCleaner(unittest.TestCase):
         
         Escenario esperado:
         - Crear un DataFrame con valores extremos usando make_sample_df() (contiene edad=120)
-        - Llamar a remove_outliers_iqr con la columna "age" y factor=1.5
+        - Llamar a remove_outliers_iqr con la columna "age" y factor=0.5
         - Verificar que el valor extremo (120) fue eliminado del resultado (usar self.assertNotIn para verificar que 120 no está en los valores de la columna)
         - Verificar que al menos uno de los valores no extremos (25 o 35) permanece en el resultado (usar self.assertIn para verificar que está presente)
         """
